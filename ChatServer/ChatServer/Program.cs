@@ -12,7 +12,6 @@ namespace ChatServer
 {
     class Program
     {
-        enum Status { Online, Busy, AFK};   //перечисление статусов
         enum MesType { Status, AddFriend, Message, Error}; //перечисление форм сообщений
         static string ipAddress;            //переменная для ip-адреса сервера
         static int port;                    //переменная для порта сервера
@@ -24,7 +23,7 @@ namespace ChatServer
         static Socket listener;             //сокет, прослушивающий порт
         static Task Connector;              //задача, в которой будет происходить обработка сообщений клиентов
         static bool ComStopServer;          //переменная, отвечающая за отключение сервера
-        static List<Tuple<string,Status>> WhoOnline;    //список людей онлайн
+        static List<Chater> Users;    //список людей онлайн
         struct ParseInfo            //структура для обработки входящего сообщения
         {
             public string[] commands;      //массив с командами
@@ -47,8 +46,8 @@ namespace ChatServer
         {
             public MesType type;
             public string id;
-            public string From;
-            public string To;
+            public Chater From;
+            public Chater To;
             public string Text;
         }
         static void Main(string[] args)
@@ -104,8 +103,19 @@ namespace ChatServer
                     ipAddress = sr.ReadLine();          //считываем ip-адресс
                     port = int.Parse(sr.ReadLine());    //считываем порт
                 }
+                Users = new List<Chater>();  //создаем экземпляр списка пользователей
+                if (!File.Exists(ipAddress + "\\users.txt")) File.Create(ipAddress + "\\users.txt");
+                else
+                {
+                    StreamReader sr = new StreamReader(ipAddress + "\\users.txt");
+                    while (!sr.EndOfStream)
+                    {
+                        Users.Add(new Chater(sr.ReadLine()));
+                    }
+                    sr.Close();
+                }
                 ServerWork = new Task(ServerWorking, TaskCreationOptions.LongRunning); //создаем задачу для запуска сервера в потоке не из пула
-                WhoOnline = new List<Tuple<string, Status>>();  //создаем экземпляр списка кто онлайн
+                
                 ServerWork.Start();     //запускаем сервер
             }
             else            //а если включен, то
@@ -246,6 +256,7 @@ namespace ChatServer
             Letter temp = new Letter();
             for (int i=0; i<coms.Length; i++)
             {
+                if (temp.type == MesType.Error) break;
                 if (parseCom.ContainsKey(coms[i]))
                     temp=parseCom[coms[i]](infos[i], temp);
                 else
@@ -275,27 +286,23 @@ namespace ChatServer
         }
         static Letter WhoSender (string info, Letter obj)
         {
-            obj.From = info;
+            foreach (Chater user in Users)
+            {
+                if (info == user.ip)
+                {
+                    obj.From = user;
+                    break;
+                }
+            }
             return obj;
         }
         static Letter ChangeStatus(string info, Letter obj)
         {
-            if (!File.Exists("users.txt")) File.Create("users.txt");
-            StreamReader sr = new StreamReader("users.txt");
-            bool inList = false;
-            while (!sr.EndOfStream)
+            switch (info)
             {
-                string user = sr.ReadLine();
-                user = user.Substring(0, user.IndexOf('\t'));
-                if (obj.From==user)
-                {
-                    inList = true;
-                    break;
-                }
-            }
-            if (!inList)
-            {
-
+                case "ONLINE": obj.From.status = Chater.Status.Online; break;
+                case "OFFLINE": obj.From.status = Chater.Status.Offline; break;
+                default: break; //тут должна быть ошибка
             }
             return obj;
         }
@@ -310,6 +317,27 @@ namespace ChatServer
         static Letter GoodMes(string t, Letter obj)
         {
             return obj;
+        }
+    }
+    class Chater
+    {
+        public enum Status { Online, Offline };
+        public string ip;
+        public string name;
+        public Status status;
+        
+
+        public Chater(string chater)
+        {
+            string[] temp = chater.Split('\t');
+            this.ip = temp[0];
+            this.name = temp[1];
+            status = Status.Offline;
+        }
+        public bool IsOnline()
+        {
+            if (status == Status.Offline) return false;
+            else return true;
         }
     }
 }
