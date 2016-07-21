@@ -12,7 +12,7 @@ namespace ChatServer
 {
     class Program
     {
-        enum MesType { Registration, Status, Message, Error}; //перечисление форм сообщений
+
         static string ipAddress;            //переменная для ip-адреса сервера
         static int port;                    //переменная для порта сервера
         static Dictionary<string, Action> commands; //команды для управления работой сервера
@@ -377,6 +377,7 @@ namespace ChatServer
             });
         }
     }
+    enum MesType { Registration, Status, Message, Error }; //перечисление форм сообщений
     class Chater
     {
         public enum Status { Online, Offline };
