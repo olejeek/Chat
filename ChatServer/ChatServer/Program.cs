@@ -147,11 +147,10 @@ namespace ChatServer
                 LetterHandler(l, recieveMes);
 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("From: {0}\t To: {1}", recieveMes.RemoteEndPoint.ToString(), "Ola");
+                Console.WriteLine("From: {0}\t To: {1}", l.From.name, l.To.name);
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Text: {0}", recievedValue);
+                Console.WriteLine("Text: {0}", l.Text);
                 Console.ResetColor();
-                Console.WriteLine(((IPEndPoint)recieveMes.RemoteEndPoint).Address.ToString());
                 string replyValue = "{OK}";
                 byte[] replyMessage = Encoding.ASCII.GetBytes(replyValue);  //переводим ответное сообщение в байты
                 recieveMes.Send(replyMessage);      //отправляем подтверждение об обработки сообщения
