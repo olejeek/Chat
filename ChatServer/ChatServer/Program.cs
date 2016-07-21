@@ -12,11 +12,11 @@ namespace ChatServer
 {
     class Program
     {
-        enum MesType { Status, AddFriend, Message, Error}; //перечисление форм сообщений
+        enum MesType { Registration, Status, Message, Error}; //перечисление форм сообщений
         static string ipAddress;            //переменная для ip-адреса сервера
         static int port;                    //переменная для порта сервера
         static Dictionary<string, Action> commands; //команды для управления работой сервера
-        static Dictionary<string, Func<string, Letter, Letter>> parseCom; //команды, приходящие от клиентов
+        static Dictionary<string, Action<string, Letter>> parseCom; //команды, приходящие от клиентов
         static bool ServerEnabled;          //переменная, отображающая, работает ли сервер
         static Task ServerWork;             //задача, в которой выполняется работа сервера
         static bool IsWork;                 //переменная, отображающая нужно ли приложение
@@ -24,14 +24,7 @@ namespace ChatServer
         static Task Connector;              //задача, в которой будет происходить обработка сообщений клиентов
         static bool ComStopServer;          //переменная, отвечающая за отключение сервера
         static List<Chater> Users;    //список людей онлайн
-        struct Letter               //структура для формирования сообщения
-        {
-            public MesType type;
-            public string id;
-            public Chater From;
-            public Chater To;
-            public string Text;
-        }
+        
         static void Main(string[] args)
         {
             IsWork = true;                  //приложение включается
@@ -146,9 +139,15 @@ namespace ChatServer
                     recievedValue += Encoding.ASCII.GetString(recievedBytes, 0, numBytes);  //переводим поток байтов в строку
                     if (recievedValue.IndexOf("{FINAL}") > -1) break;   //если встречаем конец сообщения, выходим из цикла
                 }
-                string from = "{FROM}" + recieveMes.RemoteEndPoint.ToString();
+                string from =recieveMes.RemoteEndPoint.ToString();
+                from = from.Substring(0, from.IndexOf(':'));
+                from = "{FROM}" + from;
                 recievedValue = recievedValue.Insert(0, from);
                 Letter l = Parser(recievedValue);
+                //if (l.type == MesType.Message)
+                //{
+                //    SendMessage(l);
+                //}
 
 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -274,7 +273,7 @@ namespace ChatServer
             {
                 if (temp.type == MesType.Error) break;
                 if (parseCom.ContainsKey(coms[i]))
-                    temp=parseCom[coms[i]](infos[i], temp);
+                    parseCom[coms[i]](infos[i], temp);
                 else
                 {
                     temp.type = MesType.Error;
@@ -293,14 +292,16 @@ namespace ChatServer
         }
         static void ParseComAdd()
         {
-            parseCom = new Dictionary<string, Func<string,Letter,Letter>>();
+            parseCom = new Dictionary<string, Action<string,Letter>>();
+            parseCom.Add("REGISTRATION", RecieveRegistration);
             parseCom.Add("FROM", WhoSender);
-            parseCom.Add("STATUS", ChangeStatus);
-            parseCom.Add("MESSAGE", SendMessage);
-            parseCom.Add("TEXT", SendText);
+            parseCom.Add("STATUS", RecieveStatus);
+            parseCom.Add("MESSAGE", RecieveMessage);
+            parseCom.Add("TEXT", RecieveText);
+            parseCom.Add("TO", RecieveTo);
             parseCom.Add("FINAL", GoodMes);
         }
-        static Letter WhoSender (string info, Letter obj)
+        static void WhoSender (string info, Letter obj)
         {
             foreach (Chater user in Users)
             {
@@ -313,36 +314,67 @@ namespace ChatServer
             if (obj.From==null)
             {
                 obj.From = new Chater(info + "\tunknown_user");
-                obj.To = obj.From;
                 obj.type = MesType.Error;
                 obj.Text = "E001";
             }
-            return obj;
         }
-        static Letter ChangeStatus(string info, Letter obj)
+        static void RecieveRegistration(string info, Letter obj)
         {
-            switch (info)
-            {
-                case "ONLINE": obj.From.status = Chater.Status.Online; break;
-                case "OFFLINE": obj.From.status = Chater.Status.Offline; break;
-                default: break; //тут должна быть ошибка
-            }
-            return obj;
+            obj.type = MesType.Registration;
+            obj.id = info;
         }
-        static Letter SendMessage(string info, Letter obj)
+        static void RecieveStatus(string info, Letter obj)
+        {
+            obj.type = MesType.Status;
+            obj.id = info;
+            //switch (info)
+            //{
+            //    case "ONLINE": obj.From.status = Chater.Status.Online; break;
+            //    case "OFFLINE": obj.From.status = Chater.Status.Offline; break;
+            //    default: break; //тут должна быть ошибка
+            //}
+        }
+        static void RecieveMessage(string info, Letter obj)
         {
             obj.type = MesType.Message;
             obj.id = info;
-            return obj;
         }
-        static Letter SendText(string info, Letter obj)
+        static void RecieveText(string info, Letter obj)
         {
             obj.Text = info;
-            return obj;
         }
-        static Letter GoodMes(string info, Letter obj)
+        static void RecieveTo(string info, Letter obj)
         {
-            return obj;
+            foreach (Chater user in Users)
+            {
+                if (info == user.ip)
+                {
+                    obj.To = user;
+                    break;
+                }
+            }
+            if (obj.To == null)
+            {
+                obj.To = new Chater(info + "\tunknown_user");
+                obj.type = MesType.Error;
+                obj.Text = "E002";
+            }
+        }
+        static void GoodMes(string info, Letter obj)
+        {
+        }
+        static async void SendMessage(Letter l)
+        {
+            await Task.Run(() =>
+            {
+                Socket s = new Socket(AddressFamily.InterNetwork,
+                    SocketType.Stream, ProtocolType.Tcp);
+                s.Connect(new IPEndPoint(IPAddress.Parse(l.To.ip), port));
+                string mes = "{MESSAGE}" + l.id + "{FROM}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
+                byte[] sendBytes = Encoding.ASCII.GetBytes(mes);
+                s.Send(sendBytes);
+                s.Close();
+            });
         }
     }
     class Chater
@@ -365,5 +397,13 @@ namespace ChatServer
             if (status == Status.Offline) return false;
             else return true;
         }
+    }
+    class Letter               //класс для формирования сообщения
+    {
+        public MesType type;
+        public string id;
+        public Chater From;
+        public Chater To;
+        public string Text;
     }
 }
