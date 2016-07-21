@@ -144,11 +144,7 @@ namespace ChatServer
                 from = "{FROM}" + from;
                 recievedValue = recievedValue.Insert(0, from);
                 Letter l = Parser(recievedValue);
-                //if (l.type == MesType.Message)
-                //{
-                //    SendMessage(l);
-                //}
-
+                LetterHandler(l, recieveMes);
 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("From: {0}\t To: {1}", recieveMes.RemoteEndPoint.ToString(), "Ola");
@@ -363,7 +359,52 @@ namespace ChatServer
         static void GoodMes(string info, Letter obj)
         {
         }
-        static async void SendMessage(Letter l)
+        static void LetterHandler(Letter l, Socket c)
+        {
+            switch (l.type)
+            {
+                case MesType.Registration: NewUser(l, c); break;
+                case MesType.Status: ChangeStatus(l, c);  break;
+                case MesType.Message: SendMessage(l, c); break;
+                case MesType.Error: break;
+
+            }
+        }
+        static async void NewUser(Letter l, Socket c)
+        {
+            string newUser = l.From.ip + "\t" + l.Text;
+            File.AppendAllText(ipAddress + "\\users.txt", newUser);
+            //второй способ - не проверял
+            //StreamWriter sr = new StreamWriter(ipAddress + "\\users.txt");
+            //sr.WriteLine(newUser);
+            //sr.Close();
+            Users.Add(new Chater(newUser));
+            string answer = "{REGISTRATION}" + l.Text + "{TEXT}OK{FINISH}";
+            c.Send(Encoding.ASCII.GetBytes(answer));
+            await Task.Run(() =>
+            {
+                string message = "{REGISTRATION}" + l.id + "{TEXT}" + newUser + "{FINAL}";
+                SendAll(message, l.From.ip);
+                
+            });
+        }
+        static async void ChangeStatus(Letter l, Socket c)
+        {
+            switch (l.Text)
+            {
+                case "ONLINE": l.From.status = Chater.Status.Online; break;
+                case "OFFLINE": l.From.status = Chater.Status.Offline; break;
+            }
+            string answer = "{STATUS}" + l.Text + "{TEXT}OK{FINISH}";
+            c.Send(Encoding.ASCII.GetBytes(answer));
+            await Task.Run(()=>
+            {
+                string message = "{STATUS}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
+                SendAll(message, l.From.ip);
+            });
+
+        }
+        static async void SendMessage(Letter l, Socket c)
         {
             await Task.Run(() =>
             {
@@ -374,7 +415,25 @@ namespace ChatServer
                 byte[] sendBytes = Encoding.ASCII.GetBytes(mes);
                 s.Send(sendBytes);
                 s.Close();
+                mes = "{MESSAGE}" + l.id + "{TO}" + l.To.ip + "{TEXT}OK{FINAL}";
+                c.Send(Encoding.ASCII.GetBytes(mes));
             });
+        }
+        static void SendAll(string information, string butNotIP)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(information);
+            Socket r = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+            foreach (Chater user in Users)
+            {
+                if (user.IsOnline() && user.ip != butNotIP)
+                {
+                    r.Connect(new IPEndPoint(IPAddress.Parse(user.ip), port));
+                    r.Send(bytes);
+                    r.Disconnect(true);
+                }
+            }
+            r.Close();
         }
     }
     enum MesType { Registration, Status, Message, Error }; //перечисление форм сообщений
