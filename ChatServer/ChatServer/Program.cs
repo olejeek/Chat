@@ -24,24 +24,6 @@ namespace ChatServer
         static Task Connector;              //задача, в которой будет происходить обработка сообщений клиентов
         static bool ComStopServer;          //переменная, отвечающая за отключение сервера
         static List<Chater> Users;    //список людей онлайн
-        struct ParseInfo            //структура для обработки входящего сообщения
-        {
-            public string[] commands;      //массив с командами
-            public string[] information;   //массив с информацией
-            
-            public ParseInfo(string[] commands, string[] information)   //конструктор
-            {
-                this.commands = commands;
-                this.information = information;
-            }
-            //public IEnumerator<Tuple<string,string>> GetEnumerator()   //перечислитель
-            //{
-            //    for (int i=0; i<commands.Length; i++)
-            //    {
-            //        yield return Tuple.Create(commands[i], information[i]);
-            //    }
-            //}
-        }
         struct Letter               //структура для формирования сообщения
         {
             public MesType type;
@@ -49,11 +31,6 @@ namespace ChatServer
             public Chater From;
             public Chater To;
             public string Text;
-
-            //public Letter()
-            //{
-            //    type = null;
-            //}
         }
         static void Main(string[] args)
         {
@@ -171,12 +148,7 @@ namespace ChatServer
                 }
                 string from = "{FROM}" + recieveMes.RemoteEndPoint.ToString();
                 recievedValue = recievedValue.Insert(0, from);
-                ParseInfo parseInfo = Parser(recievedValue);    //запускаем парсер сообщения
-                Letter l = Parser2(recievedValue);
-
-
-
-
+                Letter l = Parser(recievedValue);
 
 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -287,19 +259,7 @@ namespace ChatServer
             Directory.CreateDirectory(ipAddress);
             //*/
         }
-        static ParseInfo Parser(string mes)
-        {
-            string[] infos = mes.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries);
-            string[] coms = new string[infos.Length];
-            for (int i=0; i<coms.Length; i++)
-            {
-                coms[i] = infos[i].Substring(0, infos[i].IndexOf('}'));
-                infos[i] = infos[i].Substring(infos[i].IndexOf('}')+1, 
-                    infos[i].Length- infos[i].IndexOf('}')-1);
-            }
-            return new ParseInfo(coms, infos);
-        }
-        static Letter Parser2(string mes)
+        static Letter Parser(string mes)
         {
             string[] infos = mes.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries);
             string[] coms = new string[infos.Length];
