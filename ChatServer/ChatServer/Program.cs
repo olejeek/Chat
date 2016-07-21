@@ -97,19 +97,13 @@ namespace ChatServer
         {
             if (!ServerEnabled)     //если сервер не активен, то
             {
-                if (!File.Exists("settings.txt"))           //если есть файла с настройками нет
-                {
-                    SetSettings();          //то запускает настройку сервера
-                }
-                else
-                {
-                    StreamReader sr = new StreamReader("settings.txt");     //создаем поток считывания с файла
-                    if (sr.EndOfStream) SetSettings();      //если он пустой, то запускаем настройки
-                    ipAddress = sr.ReadLine();          //считываем ip-адресс
-                    port = int.Parse(sr.ReadLine());    //считываем порт
-                }
+                SetSettings();          //то запускает настройку сервера
                 Users = new List<Chater>();  //создаем экземпляр списка пользователей
-                if (!File.Exists(ipAddress + "\\users.txt")) File.Create(ipAddress + "\\users.txt");
+                if (!File.Exists(ipAddress + "\\users.txt"))
+                {
+                    FileStream fs = File.Create(ipAddress + "\\users.txt");
+                    fs.Close();
+                }
                 else
                 {
                     StreamReader sr = new StreamReader(ipAddress + "\\users.txt");
@@ -179,18 +173,18 @@ namespace ChatServer
                 recievedValue = recievedValue.Insert(0, from);
                 ParseInfo parseInfo = Parser(recievedValue);    //запускаем парсер сообщения
                 Letter l = Parser2(recievedValue);
-                
-                
 
 
 
 
-                //Console.ForegroundColor = ConsoleColor.DarkGreen;
-                //Console.WriteLine("From: {0}\t To: {1}", socket.RemoteEndPoint.ToString(), "Ola");
-                //Console.ForegroundColor = ConsoleColor.Green;
-                //Console.WriteLine("Text: {0}", recievedValue);
-                //Console.ResetColor();
-                //Console.WriteLine(((IPEndPoint)socket.RemoteEndPoint).Address.ToString());
+
+
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("From: {0}\t To: {1}", recieveMes.RemoteEndPoint.ToString(), "Ola");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Text: {0}", recievedValue);
+                Console.ResetColor();
+                Console.WriteLine(((IPEndPoint)recieveMes.RemoteEndPoint).Address.ToString());
                 string replyValue = "{OK}";
                 byte[] replyMessage = Encoding.ASCII.GetBytes(replyValue);  //переводим ответное сообщение в байты
                 recieveMes.Send(replyMessage);      //отправляем подтверждение об обработки сообщения
@@ -223,10 +217,65 @@ namespace ChatServer
         }
         static void SetSettings()       //настройки
         {
-            if (!File.Exists("settings.txt"))           //если есть файла с настройками нет
+            /* Первый вариант
+            FileStream fs = File.Open("settings.txt", FileMode.OpenOrCreate);//открываем или создаем файл настроек
+            if (fs.Length>0)    //если он не пустой
             {
-                File.Create("settings.txt");            //создаем его
+                byte[] temp = new byte[1024];
+                fs.Read(temp, 0, (int)fs.Length);
+                string tempS = Encoding.ASCII.GetString(temp);
+                ipAddress = tempS.Substring(0, tempS.IndexOf('\n'));
+                port = int.Parse(tempS.Substring(tempS.IndexOf('\n')));
+                Console.WriteLine("Current IP-address: " + ipAddress);
+                Console.WriteLine("Current port: " + port);
+                Console.Write("Do you want change settings (y/n)? ");
+                if (Console.ReadLine() != "y")
+                {
+                    fs.Close();
+                    return;
+                }
             }
+            else
+            {
+                Console.WriteLine("No settings for Chat Server.");
+            }
+            fs.Close();
+            fs = File.Create("settings.txt");
+            Console.Write("Enter server IP Address:");  //спрашиваем к какому ip подключать сервер
+            ipAddress = Console.ReadLine();
+            Console.Write("Enter server number of port:");  //и на какой порт
+            port = Convert.ToInt32(Console.ReadLine());
+            string tempS1 = ipAddress + "\n" + port.ToString();
+            byte[] temp1 = Encoding.ASCII.GetBytes(tempS1);
+            fs.Write(temp1, 0, temp1.Length);
+            fs.Close();
+            Directory.CreateDirectory(ipAddress);
+            */
+            ///*    Второй вариант
+            if (!File.Exists("settings.txt"))
+            {
+                FileStream fs = File.Create("settings.txt");
+                fs.Close();
+            }
+            StreamReader sr = new StreamReader("settings.txt");
+            if (!sr.EndOfStream)
+            {
+                ipAddress = sr.ReadLine();
+                port = Convert.ToInt32(sr.ReadLine());
+                Console.WriteLine("Current IP-address: " + ipAddress);
+                Console.WriteLine("Current port: " + port);
+                Console.Write("Do you want change settings (y/n)? ");
+                if (Console.ReadLine() != "y")
+                {
+                    sr.Close();
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("No settings for Chat Server.");
+            }
+            sr.Close();
             Console.Write("Enter server IP Address:");  //спрашиваем к какому ip подключать сервер
             ipAddress = Console.ReadLine();
             Console.Write("Enter server number of port:");  //и на какой порт
@@ -235,6 +284,8 @@ namespace ChatServer
             sw.WriteLine(ipAddress);        //и записываем туда адрес
             sw.WriteLine(port);             // и порт
             sw.Close();         //закрываем файл
+            Directory.CreateDirectory(ipAddress);
+            //*/
         }
         static ParseInfo Parser(string mes)
         {
@@ -301,7 +352,7 @@ namespace ChatServer
             }
             if (obj.From==null)
             {
-                obj.From = new Chater(info + "unknown_user");
+                obj.From = new Chater(info + "\tunknown_user");
                 obj.To = obj.From;
                 obj.type = MesType.Error;
                 obj.Text = "E001";
