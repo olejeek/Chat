@@ -49,6 +49,11 @@ namespace ChatServer
             public Chater From;
             public Chater To;
             public string Text;
+
+            //public Letter()
+            //{
+            //    type = null;
+            //}
         }
         static void Main(string[] args)
         {
@@ -173,7 +178,7 @@ namespace ChatServer
                 string from = "{FROM}" + recieveMes.RemoteEndPoint.ToString();
                 recievedValue = recievedValue.Insert(0, from);
                 ParseInfo parseInfo = Parser(recievedValue);    //запускаем парсер сообщения
-                Letter l = new Letter();
+                Letter l = Parser2(recievedValue);
                 
                 
 
@@ -294,6 +299,13 @@ namespace ChatServer
                     break;
                 }
             }
+            if (obj.From==null)
+            {
+                obj.From = new Chater(info + "unknown_user");
+                obj.To = obj.From;
+                obj.type = MesType.Error;
+                obj.Text = "E001";
+            }
             return obj;
         }
         static Letter ChangeStatus(string info, Letter obj)
@@ -306,15 +318,18 @@ namespace ChatServer
             }
             return obj;
         }
-        static Letter SendMessage(string t, Letter obj)
+        static Letter SendMessage(string info, Letter obj)
         {
+            obj.type = MesType.Message;
+            obj.id = info;
             return obj;
         }
-        static Letter SendText(string t, Letter obj)
+        static Letter SendText(string info, Letter obj)
         {
+            obj.Text = info;
             return obj;
         }
-        static Letter GoodMes(string t, Letter obj)
+        static Letter GoodMes(string info, Letter obj)
         {
             return obj;
         }
