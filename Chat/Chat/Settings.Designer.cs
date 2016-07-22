@@ -30,10 +30,12 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.ipBox = new System.Windows.Forms.TextBox();
+            this.serIpBox = new System.Windows.Forms.TextBox();
             this.portBox = new System.Windows.Forms.TextBox();
             this.SaveBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.locIpBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -41,36 +43,36 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(19, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 13);
+            this.label1.Size = new System.Drawing.Size(95, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "IP-Address:";
+            this.label1.Text = "Server IP-Address:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(51, 48);
+            this.label2.Location = new System.Drawing.Point(47, 74);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 13);
             this.label2.TabIndex = 1;
             this.label2.Text = "Port:";
             // 
-            // ipBox
+            // serIpBox
             // 
-            this.ipBox.Location = new System.Drawing.Point(86, 19);
-            this.ipBox.Name = "ipBox";
-            this.ipBox.Size = new System.Drawing.Size(133, 20);
-            this.ipBox.TabIndex = 2;
+            this.serIpBox.Location = new System.Drawing.Point(116, 19);
+            this.serIpBox.Name = "serIpBox";
+            this.serIpBox.Size = new System.Drawing.Size(133, 20);
+            this.serIpBox.TabIndex = 2;
             // 
             // portBox
             // 
-            this.portBox.Location = new System.Drawing.Point(86, 45);
+            this.portBox.Location = new System.Drawing.Point(116, 71);
             this.portBox.Name = "portBox";
             this.portBox.Size = new System.Drawing.Size(133, 20);
             this.portBox.TabIndex = 3;
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(22, 85);
+            this.SaveBtn.Location = new System.Drawing.Point(12, 97);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(75, 23);
             this.SaveBtn.TabIndex = 4;
@@ -80,7 +82,7 @@
             // 
             // CancelBtn
             // 
-            this.CancelBtn.Location = new System.Drawing.Point(144, 85);
+            this.CancelBtn.Location = new System.Drawing.Point(174, 97);
             this.CancelBtn.Name = "CancelBtn";
             this.CancelBtn.Size = new System.Drawing.Size(75, 23);
             this.CancelBtn.TabIndex = 5;
@@ -88,15 +90,33 @@
             this.CancelBtn.UseVisualStyleBackColor = true;
             this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(20, 48);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(90, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Local IP-Address:";
+            // 
+            // locIpBox
+            // 
+            this.locIpBox.Location = new System.Drawing.Point(116, 45);
+            this.locIpBox.Name = "locIpBox";
+            this.locIpBox.Size = new System.Drawing.Size(133, 20);
+            this.locIpBox.TabIndex = 8;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(234, 132);
+            this.ClientSize = new System.Drawing.Size(261, 131);
+            this.Controls.Add(this.locIpBox);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.CancelBtn);
             this.Controls.Add(this.SaveBtn);
             this.Controls.Add(this.portBox);
-            this.Controls.Add(this.ipBox);
+            this.Controls.Add(this.serIpBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -111,9 +131,11 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox ipBox;
+        private System.Windows.Forms.TextBox serIpBox;
         private System.Windows.Forms.TextBox portBox;
         private System.Windows.Forms.Button SaveBtn;
         private System.Windows.Forms.Button CancelBtn;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox locIpBox;
     }
 }

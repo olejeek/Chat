@@ -13,7 +13,8 @@ namespace Chat
 {
     public partial class Settings : Form
     {
-        string ip;
+        string serIp;
+        string locIp;
         string port;
         public Settings()
         {
@@ -21,10 +22,12 @@ namespace Chat
             if (File.Exists("settings.txt"))
             {
                 string[] sets = File.ReadAllLines("settings.txt");
-                ip = sets[0];
-                port = sets[1];
-                ipBox.Text = sets[0];
-                portBox.Text = sets[1];
+                serIp = sets[0];
+                locIp = sets[1];
+                port = sets[2];
+                serIpBox.Text = sets[0];
+                locIpBox.Text = sets[1];
+                portBox.Text = sets[2];
             }
         }
 
@@ -35,13 +38,13 @@ namespace Chat
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            if (ipBox.Text!=ip || portBox.Text!=port)
+            if (serIpBox.Text!=serIp || portBox.Text!=port)
             {
                 if (MessageBox.Show("Вы точно хотите сохранить изменения?", "Сохранение изменений", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    ip = ipBox.Text;
+                    serIp = serIpBox.Text;
                     port = portBox.Text;
-                    File.WriteAllLines("settings.txt", new string[2] {ip, port});
+                    File.WriteAllLines("settings.txt", new string[2] {serIp, port});
                     Close();
                 }
             }

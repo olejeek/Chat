@@ -21,6 +21,8 @@ namespace Chat
         string ipAddress;
         int port;
         Socket client;
+        Socket reciever;
+        Thread recieveThread;
         bool isOnline;
         List<Chater> chaters;
         public Form1()
@@ -58,6 +60,11 @@ namespace Chat
                 ipAddress = sets[0];
                 port = int.Parse(sets[1]);
             }
+            reciever = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+            recieveThread = new Thread(DataRecieve);
+
+
         }
 
         public void Listen()
@@ -92,6 +99,19 @@ namespace Chat
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
+            Settings set = new Settings();
+            set.ShowDialog();
+            set.Close();
+            if (!File.Exists("settings.txt"))
+            {
+                MessageBox.Show("Настройки подключения не найдены", "Ошибка");
+            }
+            else
+            {
+                string[] sets = File.ReadAllLines("settings.txt");
+                ipAddress = sets[0];
+                port = int.Parse(sets[1]);
+            }
             /*
             if (!ChatViewer.Visible)
             {
@@ -203,6 +223,11 @@ namespace Chat
             SendBtn.Visible = false;
             ChatViewer.Visible = false;
             MinimizeBtn.Visible = false;
+        }
+
+        private void DataRecieve()
+        {
+            
         }
     }
     class Chater
