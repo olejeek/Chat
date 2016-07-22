@@ -389,9 +389,11 @@ namespace ChatServer
             c.Send(Encoding.ASCII.GetBytes(answer));
             await Task.Run(() =>
             {
-                string message = "{REGISTRATION}" + l.id + "{TEXT}" + newUser + "{FINAL}";
-                SendAll(message, l.From.ip);
-                
+                lock (l)
+                {
+                    string message = "{REGISTRATION}" + l.id + "{TEXT}" + newUser + "{FINAL}";
+                    SendAll(message, l.From.ip);
+                }
             });
         }
         static async void ChangeStatus(Letter l, Socket c)
@@ -405,8 +407,11 @@ namespace ChatServer
             c.Send(Encoding.ASCII.GetBytes(answer));
             await Task.Run(()=>
             {
-                string message = "{STATUS}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
-                SendAll(message, l.From.ip);
+                lock (l)
+                {
+                    string message = "{STATUS}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
+                    SendAll(message, l.From.ip);
+                }
             });
 
         }
@@ -414,15 +419,19 @@ namespace ChatServer
         {
             await Task.Run(() =>
             {
-                Socket s = new Socket(AddressFamily.InterNetwork,
+                lock(l)
+                {
+                    Socket s = new Socket(AddressFamily.InterNetwork,
                     SocketType.Stream, ProtocolType.Tcp);
-                s.Connect(new IPEndPoint(IPAddress.Parse(l.To.ip), port));
-                string mes = "{MESSAGE}" + l.id + "{FROM}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
-                byte[] sendBytes = Encoding.ASCII.GetBytes(mes);
-                s.Send(sendBytes);
-                s.Close();
-                mes = "{MESSAGE}" + l.id + "{TO}" + l.To.ip + "{TEXT}OK{FINAL}";
-                c.Send(Encoding.ASCII.GetBytes(mes));
+                    s.Connect(new IPEndPoint(IPAddress.Parse(l.To.ip), port));
+                    string mes = "{MESSAGE}" + l.id + "{FROM}" + l.From.ip + "{TEXT}" + l.Text + "{FINAL}";
+                    byte[] sendBytes = Encoding.ASCII.GetBytes(mes);
+                    s.Send(sendBytes);
+                    s.Close();
+                    mes = "{MESSAGE}" + l.id + "{TO}" + l.To.ip + "{TEXT}OK{FINAL}";
+                    c.Send(Encoding.ASCII.GetBytes(mes));
+                }
+                
             });
         }
         static void SendAll(string information, string butNotIP)
