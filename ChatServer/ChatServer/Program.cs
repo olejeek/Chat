@@ -378,7 +378,14 @@ namespace ChatServer
             //sr.WriteLine(newUser);
             //sr.Close();
             Users.Add(new Chater(newUser));
-            string answer = "{REGISTRATION}" + l.Text + "{TEXT}OK{FINISH}";
+            string[] users = File.ReadAllLines(ipAddress + "\\users.txt");
+            string answer = "{REGISTRATION}" + l.Text + "{TEXT}";
+            c.Send(Encoding.ASCII.GetBytes(answer));
+            foreach (string u in users)
+            {
+                c.Send(Encoding.ASCII.GetBytes(u));
+            }
+            answer = "{FINISH}";
             c.Send(Encoding.ASCII.GetBytes(answer));
             await Task.Run(() =>
             {
