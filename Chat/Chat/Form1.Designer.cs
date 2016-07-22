@@ -29,19 +29,20 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Online");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Offline");
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.StatusBtn = new System.Windows.Forms.ToolStripSplitButton();
             this.onlineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.busyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aFKToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.offlineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddGroup = new System.Windows.Forms.ToolStripButton();
+            this.addFriend = new System.Windows.Forms.ToolStripButton();
             this.UsersTree = new System.Windows.Forms.TreeView();
             this.ChatViewer = new System.Windows.Forms.TextBox();
             this.MesBox = new System.Windows.Forms.TextBox();
             this.SendBtn = new System.Windows.Forms.Button();
-            this.addFriend = new System.Windows.Forms.ToolStripButton();
+            this.MinimizeBtn = new System.Windows.Forms.Button();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,8 +76,6 @@
             this.StatusBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.StatusBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.onlineToolStripMenuItem,
-            this.busyToolStripMenuItem,
-            this.aFKToolStripMenuItem,
             this.offlineToolStripMenuItem});
             this.StatusBtn.Image = ((System.Drawing.Image)(resources.GetObject("StatusBtn.Image")));
             this.StatusBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -87,28 +86,14 @@
             // onlineToolStripMenuItem
             // 
             this.onlineToolStripMenuItem.Name = "onlineToolStripMenuItem";
-            this.onlineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.onlineToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.onlineToolStripMenuItem.Text = "Online";
             this.onlineToolStripMenuItem.Click += new System.EventHandler(this.onlineToolStripMenuItem_Click);
-            // 
-            // busyToolStripMenuItem
-            // 
-            this.busyToolStripMenuItem.Name = "busyToolStripMenuItem";
-            this.busyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.busyToolStripMenuItem.Text = "Busy";
-            this.busyToolStripMenuItem.Click += new System.EventHandler(this.busyToolStripMenuItem_Click);
-            // 
-            // aFKToolStripMenuItem
-            // 
-            this.aFKToolStripMenuItem.Name = "aFKToolStripMenuItem";
-            this.aFKToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.aFKToolStripMenuItem.Text = "AFK";
-            this.aFKToolStripMenuItem.Click += new System.EventHandler(this.aFKToolStripMenuItem_Click);
             // 
             // offlineToolStripMenuItem
             // 
             this.offlineToolStripMenuItem.Name = "offlineToolStripMenuItem";
-            this.offlineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.offlineToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.offlineToolStripMenuItem.Text = "Offline";
             this.offlineToolStripMenuItem.Click += new System.EventHandler(this.offlineToolStripMenuItem_Click);
             // 
@@ -122,11 +107,28 @@
             this.AddGroup.Text = "Add Group";
             this.AddGroup.Click += new System.EventHandler(this.AddGroup_Click);
             // 
+            // addFriend
+            // 
+            this.addFriend.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.addFriend.Image = ((System.Drawing.Image)(resources.GetObject("addFriend.Image")));
+            this.addFriend.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.addFriend.Name = "addFriend";
+            this.addFriend.Size = new System.Drawing.Size(23, 22);
+            this.addFriend.Text = "AddFriend";
+            this.addFriend.Click += new System.EventHandler(this.addFriend_Click);
+            // 
             // UsersTree
             // 
             this.UsersTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.UsersTree.Location = new System.Drawing.Point(300, 37);
             this.UsersTree.Name = "UsersTree";
+            treeNode3.Name = "OnlineUsers";
+            treeNode3.Text = "Online";
+            treeNode4.Name = "OfflineUsers";
+            treeNode4.Text = "Offline";
+            this.UsersTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode3,
+            treeNode4});
             this.UsersTree.Size = new System.Drawing.Size(180, 290);
             this.UsersTree.TabIndex = 2;
             // 
@@ -156,25 +158,26 @@
             this.SendBtn.Name = "SendBtn";
             this.SendBtn.Size = new System.Drawing.Size(75, 23);
             this.SendBtn.TabIndex = 5;
-            this.SendBtn.Text = "Send";
+            this.SendBtn.Text = "Отправить";
             this.SendBtn.UseVisualStyleBackColor = true;
             this.SendBtn.Click += new System.EventHandler(this.SendBtn_Click);
             // 
-            // addFriend
+            // MinimizeBtn
             // 
-            this.addFriend.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.addFriend.Image = ((System.Drawing.Image)(resources.GetObject("addFriend.Image")));
-            this.addFriend.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.addFriend.Name = "addFriend";
-            this.addFriend.Size = new System.Drawing.Size(23, 22);
-            this.addFriend.Text = "AddFriend";
-            this.addFriend.Click += new System.EventHandler(this.addFriend_Click);
+            this.MinimizeBtn.Location = new System.Drawing.Point(12, 291);
+            this.MinimizeBtn.Name = "MinimizeBtn";
+            this.MinimizeBtn.Size = new System.Drawing.Size(75, 23);
+            this.MinimizeBtn.TabIndex = 6;
+            this.MinimizeBtn.Text = "Свернуть";
+            this.MinimizeBtn.UseVisualStyleBackColor = true;
+            this.MinimizeBtn.Click += new System.EventHandler(this.MinimizeBtn_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 326);
+            this.Controls.Add(this.MinimizeBtn);
             this.Controls.Add(this.SendBtn);
             this.Controls.Add(this.MesBox);
             this.Controls.Add(this.ChatViewer);
@@ -204,11 +207,10 @@
         private System.Windows.Forms.Button SendBtn;
         private System.Windows.Forms.ToolStripSplitButton StatusBtn;
         private System.Windows.Forms.ToolStripMenuItem onlineToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem busyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem aFKToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem offlineToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton AddGroup;
         private System.Windows.Forms.ToolStripButton addFriend;
+        private System.Windows.Forms.Button MinimizeBtn;
     }
 }
 

@@ -17,9 +17,12 @@ namespace Chat
 {
     public partial class Form1 : Form
     {
-        enum Status {Offline, Online, Busy, AFK };
+        enum Status {Offline, Online};
+        string ipAddress;
+        int port;
         Socket client;
         bool isOnline;
+        List<Chater> chaters;
         public Form1()
         {
             InitializeComponent();
@@ -28,9 +31,33 @@ namespace Chat
             ChatViewer.Visible = false;
             MesBox.Visible = false;
             SendBtn.Visible = false;
+            MinimizeBtn.Visible = false;
             this.Top = Screen.PrimaryScreen.Bounds.Height - this.Height-40;
             this.Left = Screen.PrimaryScreen.Bounds.Width - this.Width;
-            SendInfo("{STATUS}ONLINE{FINAL}");
+            chaters = new List<Chater>();
+            string[] sets;
+            if (!File.Exists("settings.txt"))
+            {
+                Settings set = new Settings();
+                set.ShowDialog();
+                set.Close();
+                if (!File.Exists("settings.txt"))
+                {
+                    MessageBox.Show("Настройки подключения не найдены", "Ошибка");
+                }
+                else
+                {
+                    sets = File.ReadAllLines("settings.txt");
+                    ipAddress = sets[0];
+                    port = int.Parse(sets[1]);
+                }
+            }
+            else
+            {
+                sets = File.ReadAllLines("settings.txt");
+                ipAddress = sets[0];
+                port = int.Parse(sets[1]);
+            }
         }
 
         public void Listen()
@@ -65,11 +92,13 @@ namespace Chat
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
+            /*
             if (!ChatViewer.Visible)
             {
                 this.Width += 300;
                 this.Left -= 300;
                 ChatViewer.Visible = true;
+                MinimizeBtn.Visible = true;
                 MesBox.Visible = true;
                 SendBtn.Visible = true;
             }
@@ -80,7 +109,9 @@ namespace Chat
                 MesBox.Visible = false;
                 SendBtn.Visible = false;
                 ChatViewer.Visible = false;
+                MinimizeBtn.Visible = false;
             }
+            */
         }
 
         private void SendBtn_Click(object sender, EventArgs e)
@@ -141,8 +172,10 @@ namespace Chat
 
         private void AddGroup_Click(object sender, EventArgs e)
         {
-            UsersTree.Nodes.Add("New Group");
+            //UsersTree.Nodes.Add()
+            //UsersTree.LabelEdit = true;
             //UsersTree.Nodes["New Group"].BeginEdit();
+            //UsersTree.LabelEdit = false;
         }
 
         private void onlineToolStripMenuItem_Click(object sender, EventArgs e)
@@ -150,19 +183,6 @@ namespace Chat
             SendInfo("{STATUS}" + Status.Online.ToString() + "{FINAL}");
             isOnline = true;
         }
-
-        private void busyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SendInfo("{STATUS}"+ Status.Busy.ToString() + "{FINAL}");
-            isOnline = true;
-        }
-
-        private void aFKToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SendInfo("{STATUS}" + Status.AFK.ToString() + "{FINAL}");
-            isOnline = true;
-        }
-
         private void offlineToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SendInfo("{STATUS}" + Status.Offline.ToString() + "{FINAL}");
@@ -173,6 +193,37 @@ namespace Chat
         {
             SearchFriend searchFriend = new SearchFriend();
             searchFriend.ShowDialog();
+        }
+
+        private void MinimizeBtn_Click(object sender, EventArgs e)
+        {
+            this.Width = 200;
+            this.Left = Screen.PrimaryScreen.Bounds.Width - this.Width;
+            MesBox.Visible = false;
+            SendBtn.Visible = false;
+            ChatViewer.Visible = false;
+            MinimizeBtn.Visible = false;
+        }
+    }
+    class Chater
+    {
+        public enum Status { Online, Offline };
+        public string ip;
+        public string name;
+        public Status status;
+
+
+        public Chater(string chater)
+        {
+            string[] temp = chater.Split('\t');
+            this.ip = temp[0];
+            this.name = temp[1];
+            status = Status.Offline;
+        }
+        public bool IsOnline()
+        {
+            if (status == Status.Offline) return false;
+            else return true;
         }
     }
 }
