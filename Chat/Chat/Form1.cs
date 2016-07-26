@@ -17,13 +17,15 @@ namespace Chat
 {
     public partial class Form1 : Form
     {
-        enum Status {Offline, Online};
-        string ipAddress;
+        enum Status {OFFLINE, ONLINE};
+        string serIp;
+        string locIp;
+        string name;
         int port;
         Socket client;
         Socket reciever;
         Thread recieveThread;
-        bool isOnline;
+        Status status;
         List<Chater> chaters;
         public Form1()
         {
@@ -50,28 +52,37 @@ namespace Chat
                 else
                 {
                     sets = File.ReadAllLines("settings.txt");
-                    ipAddress = sets[0];
-                    port = int.Parse(sets[1]);
+                    serIp = sets[0];
+                    locIp = sets[1];
+                    port = int.Parse(sets[2]);
+                    name = sets[3];
+                    client = new Socket(AddressFamily.InterNetwork,
+                        SocketType.Stream, ProtocolType.Tcp);
+                    client.Connect(new IPEndPoint(IPAddress.Parse(serIp), port));
+                    client.Send(Encoding.ASCII.GetBytes("{REGISTRATION}"+MesId()+
+                        "{TEXT}" + name + "{FINAL}"));
+                    Listen();
                 }
             }
             else
             {
                 sets = File.ReadAllLines("settings.txt");
-                ipAddress = sets[0];
-                port = int.Parse(sets[1]);
+                serIp = sets[0];
+                locIp = sets[1];
+                port = int.Parse(sets[2]);
+                name = sets[3];
             }
+            Text = "Chat: " + name + " - " + status.ToString();
             reciever = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
             recieveThread = new Thread(DataRecieve);
-
-
         }
 
         public void Listen()
         {
             client = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
-            client.Bind(new IPEndPoint(IPAddress.Parse("127.20.53.7"), 1990));
+            client.Bind(new IPEndPoint(IPAddress.Parse(locIp), port));
             client.Listen(1);
             while (true)
             {
@@ -81,7 +92,7 @@ namespace Chat
                 ChatViewer.Text+=String.Format("Принято соединение от {0}", handler.RemoteEndPoint);
 
                 ChatViewer.Text += String.Format("Отправляем сообщениею..");
-                handler.Send(Encoding.ASCII.GetBytes("Я занят"));
+                handler.Send(Encoding.ASCII.GetBytes("{OK}"));
 
                 // Соединение необходимо закрыть
                 ChatViewer.Text += String.Format("Закрытие соединение");
@@ -109,7 +120,7 @@ namespace Chat
             else
             {
                 string[] sets = File.ReadAllLines("settings.txt");
-                ipAddress = sets[0];
+                serIp = sets[0];
                 port = int.Parse(sets[1]);
             }
             /*
@@ -146,10 +157,10 @@ namespace Chat
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (isOnline)
+            if (status == Status.ONLINE)
             {
                 SendInfo("{STATUS}OFFLINE{FINAL}");
-                isOnline = false;
+                status = Status.OFFLINE;
             }
         }
         private IPEndPoint ServerOptions(string ip, int port)
@@ -170,7 +181,7 @@ namespace Chat
                 if (answer == "{OK}")
                 {
                     ChatViewer.Text += "OK!/n";
-                    isOnline = true;
+                    status = Status.ONLINE;
                 }
                 else
                     ChatViewer.Text += "Error!!!/n";
@@ -200,13 +211,11 @@ namespace Chat
 
         private void onlineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SendInfo("{STATUS}" + Status.Online.ToString() + "{FINAL}");
-            isOnline = true;
+            SendInfo("{STATUS}" + Status.ONLINE.ToString() + "{FINAL}");
         }
         private void offlineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SendInfo("{STATUS}" + Status.Offline.ToString() + "{FINAL}");
-            isOnline = false;
+            SendInfo("{STATUS}" + Status.OFFLINE.ToString() + "{FINAL}");
         }
 
         private void addFriend_Click(object sender, EventArgs e)
@@ -228,6 +237,18 @@ namespace Chat
         private void DataRecieve()
         {
             
+        }
+        private string MesId()
+        {
+            StringBuilder text = new StringBuilder(17);
+            text = text.Append(DateTime.Now.Year.ToString());
+            text = text.Append(DateTime.Now.Month.ToString());
+            text = text.Append(DateTime.Now.Day.ToString());
+            text = text.Append(DateTime.Now.Hour.ToString());
+            text = text.Append(DateTime.Now.Minute.ToString());
+            text = text.Append(DateTime.Now.Second.ToString());
+            text = text.Append(DateTime.Now.Millisecond.ToString());
+            return text.ToString();
         }
     }
     class Chater

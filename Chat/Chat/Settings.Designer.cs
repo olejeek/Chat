@@ -36,6 +36,8 @@
             this.CancelBtn = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.locIpBox = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.nameBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -50,7 +52,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(47, 74);
+            this.label2.Location = new System.Drawing.Point(81, 74);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 13);
             this.label2.TabIndex = 1;
@@ -72,7 +74,7 @@
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(12, 97);
+            this.SaveBtn.Location = new System.Drawing.Point(12, 129);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(75, 23);
             this.SaveBtn.TabIndex = 4;
@@ -82,7 +84,7 @@
             // 
             // CancelBtn
             // 
-            this.CancelBtn.Location = new System.Drawing.Point(174, 97);
+            this.CancelBtn.Location = new System.Drawing.Point(174, 129);
             this.CancelBtn.Name = "CancelBtn";
             this.CancelBtn.Size = new System.Drawing.Size(75, 23);
             this.CancelBtn.TabIndex = 5;
@@ -106,11 +108,29 @@
             this.locIpBox.Size = new System.Drawing.Size(133, 20);
             this.locIpBox.TabIndex = 8;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(72, 101);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(38, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Name:";
+            // 
+            // nameBox
+            // 
+            this.nameBox.Location = new System.Drawing.Point(116, 98);
+            this.nameBox.Name = "nameBox";
+            this.nameBox.Size = new System.Drawing.Size(133, 20);
+            this.nameBox.TabIndex = 10;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(261, 131);
+            this.ClientSize = new System.Drawing.Size(261, 164);
+            this.Controls.Add(this.nameBox);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.locIpBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.CancelBtn);
@@ -137,5 +157,7 @@
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox locIpBox;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox nameBox;
     }
 }

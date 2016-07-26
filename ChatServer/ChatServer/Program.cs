@@ -137,6 +137,7 @@ namespace ChatServer
                     byte[] recievedBytes = new byte[1024];      //буфер для входящего потока байтов
                     int numBytes = recieveMes.Receive(recievedBytes);   //количество пришедших байтов
                     recievedValue += Encoding.ASCII.GetString(recievedBytes, 0, numBytes);  //переводим поток байтов в строку
+                    Console.WriteLine(recievedValue);
                     if (recievedValue.IndexOf("{FINAL}") > -1) break;   //если встречаем конец сообщения, выходим из цикла
                 }
                 string from =recieveMes.RemoteEndPoint.ToString();
@@ -145,7 +146,7 @@ namespace ChatServer
                 recievedValue = recievedValue.Insert(0, from);
                 Letter l = Parser(recievedValue);
                 LetterHandler(l, recieveMes);
-
+                if (l.type != MesType.Message) l.To = l.From;
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("From: {0}\t To: {1}", l.From.name, l.To.name);
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -309,8 +310,8 @@ namespace ChatServer
             if (obj.From==null)
             {
                 obj.From = new Chater(info + "\tunknown_user");
-                obj.type = MesType.Error;
-                obj.Text = "E001";
+                //obj.type = MesType.Error;
+                //obj.Text = "E001";
             }
         }
         static void RecieveRegistration(string info, Letter obj)
