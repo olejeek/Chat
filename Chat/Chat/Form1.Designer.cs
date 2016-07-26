@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Online");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Offline");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Online");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Offline");
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.settingsBtn = new System.Windows.Forms.ToolStripButton();
             this.StatusBtn = new System.Windows.Forms.ToolStripSplitButton();
@@ -69,7 +69,7 @@
             this.settingsBtn.Name = "settingsBtn";
             this.settingsBtn.Size = new System.Drawing.Size(23, 22);
             this.settingsBtn.Text = "Settings";
-            this.settingsBtn.Click += new System.EventHandler(this.toolStripButton1_Click);
+            this.settingsBtn.Click += new System.EventHandler(this.setStripButton1_Click);
             // 
             // StatusBtn
             // 
@@ -86,14 +86,14 @@
             // onlineToolStripMenuItem
             // 
             this.onlineToolStripMenuItem.Name = "onlineToolStripMenuItem";
-            this.onlineToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.onlineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.onlineToolStripMenuItem.Text = "Online";
             this.onlineToolStripMenuItem.Click += new System.EventHandler(this.onlineToolStripMenuItem_Click);
             // 
             // offlineToolStripMenuItem
             // 
             this.offlineToolStripMenuItem.Name = "offlineToolStripMenuItem";
-            this.offlineToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.offlineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.offlineToolStripMenuItem.Text = "Offline";
             this.offlineToolStripMenuItem.Click += new System.EventHandler(this.offlineToolStripMenuItem_Click);
             // 
@@ -122,13 +122,13 @@
             this.UsersTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.UsersTree.Location = new System.Drawing.Point(300, 37);
             this.UsersTree.Name = "UsersTree";
-            treeNode3.Name = "OnlineUsers";
-            treeNode3.Text = "Online";
-            treeNode4.Name = "OfflineUsers";
-            treeNode4.Text = "Offline";
+            treeNode1.Name = "OnlineUsers";
+            treeNode1.Text = "Online";
+            treeNode2.Name = "OfflineUsers";
+            treeNode2.Text = "Offline";
             this.UsersTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode3,
-            treeNode4});
+            treeNode1,
+            treeNode2});
             this.UsersTree.Size = new System.Drawing.Size(180, 290);
             this.UsersTree.TabIndex = 2;
             // 

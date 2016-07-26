@@ -18,10 +18,9 @@ namespace Chat
     public partial class Form1 : Form
     {
         enum Status {OFFLINE, ONLINE};
-        string serIp;
-        string locIp;
+        IPEndPoint serverAddress;
+        IPEndPoint localAddress;
         string name;
-        int port;
         Socket client;
         Socket reciever;
         Thread recieveThread;
@@ -42,47 +41,33 @@ namespace Chat
             string[] sets;
             if (!File.Exists("settings.txt"))
             {
-                Settings set = new Settings();
-                set.ShowDialog();
-                set.Close();
-                if (!File.Exists("settings.txt"))
-                {
-                    MessageBox.Show("Настройки подключения не найдены", "Ошибка");
-                }
-                else
-                {
-                    sets = File.ReadAllLines("settings.txt");
-                    serIp = sets[0];
-                    locIp = sets[1];
-                    port = int.Parse(sets[2]);
-                    name = sets[3];
-                    client = new Socket(AddressFamily.InterNetwork,
-                        SocketType.Stream, ProtocolType.Tcp);
-                    client.Connect(new IPEndPoint(IPAddress.Parse(serIp), port));
-                    client.Send(Encoding.ASCII.GetBytes("{REGISTRATION}"+MesId()+
-                        "{TEXT}" + name + "{FINAL}"));
-                    Listen();
-                }
+                SetSettings();
             }
             else
             {
                 sets = File.ReadAllLines("settings.txt");
-                serIp = sets[0];
-                locIp = sets[1];
-                port = int.Parse(sets[2]);
+                int port = int.Parse(sets[2]);
+                serverAddress = new IPEndPoint(IPAddress.Parse(sets[0]), port);
+                localAddress = new IPEndPoint(IPAddress.Parse(sets[1]), port);
                 name = sets[3];
             }
+            client = new Socket(AddressFamily.InterNetwork,
+                        SocketType.Stream, ProtocolType.Tcp);
             Text = "Chat: " + name + " - " + status.ToString();
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            client = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
             reciever = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
             recieveThread = new Thread(DataRecieve);
         }
-
         public void Listen()
         {
             client = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
-            client.Bind(new IPEndPoint(IPAddress.Parse(locIp), port));
+            client.Bind(localAddress);
             client.Listen(1);
             while (true)
             {
@@ -103,56 +88,25 @@ namespace Chat
         {
             ChatViewer.Text += mes;
         }
-        private void Form1_Load(object sender, EventArgs e)
-        {
 
-        }
 
-        private void toolStripButton1_Click(object sender, EventArgs e)
+        private void setStripButton1_Click(object sender, EventArgs e)
         {
-            Settings set = new Settings();
-            set.ShowDialog();
-            set.Close();
-            if (!File.Exists("settings.txt"))
-            {
-                MessageBox.Show("Настройки подключения не найдены", "Ошибка");
-            }
-            else
-            {
-                string[] sets = File.ReadAllLines("settings.txt");
-                serIp = sets[0];
-                port = int.Parse(sets[1]);
-            }
-            /*
-            if (!ChatViewer.Visible)
-            {
-                this.Width += 300;
-                this.Left -= 300;
-                ChatViewer.Visible = true;
-                MinimizeBtn.Visible = true;
-                MesBox.Visible = true;
-                SendBtn.Visible = true;
-            }
-            else
-            {
-                this.Width = 200;
-                this.Left = Screen.PrimaryScreen.Bounds.Width - this.Width;
-                MesBox.Visible = false;
-                SendBtn.Visible = false;
-                ChatViewer.Visible = false;
-                MinimizeBtn.Visible = false;
-            }
-            */
+            SetSettings();
         }
 
         private void SendBtn_Click(object sender, EventArgs e)
         {
-            TcpClient tcpClient= new TcpClient("172.20.53.7", 1990);
-            NetworkStream ns = tcpClient.GetStream();
-            string mes = MesBox.Text+"{FINAL}";
-            ns.Write(Encoding.ASCII.GetBytes(mes), 0, mes.Length);
-            ns.Close();
-            tcpClient.Close();
+            client.Connect(serverAddress);
+            string mes = "{MESSAGE}" + MesId() + "{TO}127.20.53.7" + "{TEXT}" + MesBox.Text + "{FINAL}";
+            client.Send(Encoding.ASCII.GetBytes(mes));
+            client.Disconnect(true);
+            //TcpClient tcpClient= new TcpClient("172.20.53.7", 1990);
+            //NetworkStream ns = tcpClient.GetStream();
+            //string mes = MesBox.Text+"{FINAL}";
+            //ns.Write(Encoding.ASCII.GetBytes(mes), 0, mes.Length);
+            //ns.Close();
+            //tcpClient.Close();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -220,8 +174,7 @@ namespace Chat
 
         private void addFriend_Click(object sender, EventArgs e)
         {
-            SearchFriend searchFriend = new SearchFriend();
-            searchFriend.ShowDialog();
+
         }
 
         private void MinimizeBtn_Click(object sender, EventArgs e)
@@ -236,7 +189,25 @@ namespace Chat
 
         private void DataRecieve()
         {
-            
+            reciever = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+            reciever.Bind(localAddress);
+            reciever.Listen(5);
+            while (true)
+            {
+                Socket handler = client.Accept();
+
+                //Входящее соединение необходимо обработать
+                ChatViewer.Text += String.Format("Принято соединение от {0}", handler.RemoteEndPoint);
+
+                ChatViewer.Text += String.Format("Отправляем сообщениею..");
+                handler.Send(Encoding.ASCII.GetBytes("{OK}"));
+
+                // Соединение необходимо закрыть
+                ChatViewer.Text += String.Format("Закрытие соединение");
+                handler.Close();
+            }
+            reciever.Close();
         }
         private string MesId()
         {
@@ -249,6 +220,25 @@ namespace Chat
             text = text.Append(DateTime.Now.Second.ToString());
             text = text.Append(DateTime.Now.Millisecond.ToString());
             return text.ToString();
+        }
+        private void SetSettings()
+        {
+            string[] sets;
+            Settings set = new Settings();
+            set.ShowDialog();
+            set.Close();
+            if (!File.Exists("settings.txt"))
+            {
+                MessageBox.Show("Настройки подключения не найдены", "Ошибка");
+            }
+            else
+            {
+                sets = File.ReadAllLines("settings.txt");
+                int port = int.Parse(sets[2]);
+                name = sets[3];
+                serverAddress = new IPEndPoint(IPAddress.Parse(sets[0]), port);
+                localAddress = new IPEndPoint(IPAddress.Parse(sets[1]), port);
+            }
         }
     }
     class Chater
